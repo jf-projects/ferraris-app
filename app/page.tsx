@@ -1,9 +1,14 @@
-import Image from 'next/image'
+import { getServerSession } from 'next-auth'
+import { authOptions } from './api/auth/[...nextauth]/authOptions';
+import Navbar from './navbar';
+import LoginForm from './components/LoginForm';
 
-export default function Home() {
+export default async function Home() {
+  const session = await getServerSession(authOptions);
   return (
     <main>
-      <h1>Hello world</h1>
+      {/* <Navbar /> */}
+      <LoginForm />
     </main>
   )
 }

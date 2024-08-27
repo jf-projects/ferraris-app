@@ -9,3 +9,37 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id              Int       @id @default(autoincrement())
+  name            String
+  email           String    @unique
+  emailVerifiedAt DateTime?
+  password        String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime? // Soft delete
+
+  @@index([deletedAt]) // Optional: Index to improve query performance when filtering out soft-deleted records
+}
+
+model Client {
+   id              Int       @id @default(autoincrement())
+  firstName        String?   @db.VarChar(255)
+  middleName       String?   @db.VarChar(255)
+  lastName         String?   @db.VarChar(255)
+  address          String?   @db.VarChar(255)
+  gender           String?   @db.VarChar(255)
+  civilStatus      String?   @db.VarChar(255)
+  clientNumber     String?   @db.VarChar(255)
+  clientLandline   String?   @db.VarChar(255)
+  spouseFirstName  String?   @db.VarChar(255)
+  spouseMiddleName String?   @db.VarChar(255)
+  spouseLastName   String?   @db.VarChar(255)
+  bday             DateTime? @db.Date
+  image            String?   @db.Text
+  email            String    @db.VarChar(255)
+  deletedAt        DateTime? @db.Timestamp(6)
+  createdAt        DateTime  @default(now()) @db.Timestamp(6)
+  updatedAt        DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+}
