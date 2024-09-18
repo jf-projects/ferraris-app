@@ -15,31 +15,88 @@ model User {
   name            String
   email           String    @unique
   emailVerifiedAt DateTime?
+  type            String    @default("normal")
   password        String
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
   deletedAt       DateTime? // Soft delete
 
+  logs Log[] // Relation to the Log model
+
   @@index([deletedAt]) // Optional: Index to improve query performance when filtering out soft-deleted records
 }
 
 model Client {
-   id              Int       @id @default(autoincrement())
-  firstName        String?   @db.VarChar(255)
-  middleName       String?   @db.VarChar(255)
-  lastName         String?   @db.VarChar(255)
-  address          String?   @db.VarChar(255)
-  gender           String?   @db.VarChar(255)
-  civilStatus      String?   @db.VarChar(255)
-  clientNumber     String?   @db.VarChar(255)
-  clientLandline   String?   @db.VarChar(255)
-  spouseFirstName  String?   @db.VarChar(255)
-  spouseMiddleName String?   @db.VarChar(255)
-  spouseLastName   String?   @db.VarChar(255)
-  bday             DateTime? @db.Date
-  image            String?   @db.Text
-  email            String    @db.VarChar(255)
-  deletedAt        DateTime? @db.Timestamp(6)
-  createdAt        DateTime  @default(now()) @db.Timestamp(6)
-  updatedAt        DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+  id               Int              @id @default(autoincrement())
+  firstName        String?          @db.VarChar(255)
+  middleName       String?          @db.VarChar(255)
+  lastName         String?          @db.VarChar(255)
+  address          String?          @db.VarChar(255)
+  gender           String?          @db.VarChar(255)
+  civilStatus      String?          @db.VarChar(255)
+  clientNumber     String?          @db.VarChar(255)
+  clientLandline   String?          @db.VarChar(255)
+  spouseFirstName  String?          @db.VarChar(255)
+  spouseMiddleName String?          @db.VarChar(255)
+  spouseLastName   String?          @db.VarChar(255)
+  bday             DateTime?        @db.Date
+  image            String?          @db.Text
+  email            String           @db.VarChar(255)
+  client_id        String?          @db.Text
+  deletedAt        DateTime?        @db.Timestamp(6)
+  createdAt        DateTime         @default(now()) @db.Timestamp(6)
+  updatedAt        DateTime         @default(now()) @updatedAt @db.Timestamp(6)
+  lotTransactions  LotTransaction[]
+}
+
+model LotTransaction {
+  id                  Int       @id @default(autoincrement())
+  clientId            Int?      @db.Integer
+  propertyUnit        String?   @db.VarChar(255)
+  totalPropertySize   Int?      @db.Integer
+  type                String?   @db.VarChar(255)
+  unitBlock           String?   @db.VarChar(255)
+  unitLot             String?   @db.VarChar(255)
+  propertyUnitAddress String?   @db.VarChar(255)
+  propertyTotalAmount Float?    @db.Real
+  downpayment         Float?    @db.Real
+  paymentTerms        String?   @db.VarChar(255)
+  incrementValues     String?   @db.Text
+  dueDate             DateTime? @db.Timestamp(6)
+  interest            Float?    @db.Real
+  sqm                 Float?    @db.Real
+  incrementAmount     Float?    @db.Real
+  transactionDate     DateTime? @db.Timestamp(6)
+  autocompute         Int       @db.Integer
+  interestDate        DateTime? @db.Timestamp(6)
+  deletedAt           DateTime? @db.Timestamp(6)
+  createdAt           DateTime  @default(now()) @db.Timestamp(6)
+  updatedAt           DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+  client              Client?   @relation(fields: [clientId], references: [id])
+  payments            Payment[]
+}
+
+model Log {
+  id        Int      @id @default(autoincrement())
+  entity    String
+  action    String
+  model_id  Int?     @db.Integer // Nullable
+  oldValue  Json?
+  newValue  Json?
+  userId    Int? // Foreign key to the User model
+  user      User?    @relation(fields: [userId], references: [id]) // Relation fieldß
+  timestamp DateTime @default(now())
+}
+
+model Payment {
+  id               Int             @id @default(autoincrement())
+  lotTransactionId Int
+  amount           Decimal?        @db.Decimal(18, 2)
+  bank             String?
+  paymentDate      DateTime?
+  remarks          String?
+  deletedAt        DateTime?       @db.Timestamp(6)
+  createdAt        DateTime        @default(now()) @db.Timestamp(6)
+  updatedAt        DateTime        @default(now()) @updatedAt @db.Timestamp(6)
+  transaction      LotTransaction? @relation(fields: [lotTransactionId], references: [id])
 }

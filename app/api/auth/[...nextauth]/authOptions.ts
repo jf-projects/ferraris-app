@@ -24,28 +24,33 @@ export const authOptions: NextAuthOptions = {
 
                 const passwordMatch = await bcrypt.compare(credentials.password, user.password!);
 
-                if (!passwordMatch) return null;
-
-                // Convert the id to a string to match the expected User type in NextAuth
-                return {
-                    id: user.id.toString(),  // Convert id to string
-                    name: user.name,
-                    email: user.email,
-                };
+                return passwordMatch ? user : null;
             }
         })
     ],
-    session: {
-        strategy: "jwt"
-    },
     secret: process.env.NEXTAUTH_SECRET,
     pages: {
         signIn: '/login', // This points to your custom sign-in page
     },
-    // callbacks: {
-    //     async redirect({ url, baseUrl }) {
-    //         return baseUrl; // Always redirect to home page
-    //     },
-    // },
+    session: {
+        strategy: 'jwt', // Use JWT for sessions
+        maxAge: 24 * 60 * 60, // 1 day in seconds
+    },
+    callbacks: {
+        async jwt({ token, user }) {
+            if (user) {
+                token.id = user.id; // Add id to the JWT token
+                token.type = user.type; // Add type to the JWT token
+            }
+            return token;
+        },
+        async session({ session, token }) {
+            if (token) {
+                session.user.id = token.id as number; // Add id to the session
+                session.user.type = token.type as string; // Add type to the session
+            }
+            return session;
+        }
+    }
 
 }

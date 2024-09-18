@@ -1,16 +1,34 @@
-'use client';
-
 import { createContext, useContext } from "react";
-import { Client } from "./client";
 
-interface ClientContext {
-    clients: Client[];
-    addClient: (clients: Client) => void;
+// Define the ClientProps interface
+interface ClientProps {
+  id?: number;
+  firstName: string;
+  lastName: string;
+  address: string;
+  gender: string;
+  civilStatus: string;
+  email: string;
+  bday: string;
+  spouseFirstName: string;
+  spouseLastName: string;
+  spouseMiddleName: string;
+  clientNumber: string;
+  middleName: string;
+  image: string;
+  client_id: string;
 }
 
-export const ClientContext = createContext<ClientContext>({
-    clients: [],
-    addClient(client) {}
-})
+// Create a context with the type ClientProps or undefined
+export const ClientContext = createContext<ClientProps | undefined>(undefined);
 
-export const useClientContext = () => useContext(ClientContext);
+// Custom hook to use the ClientContext
+export function useClientContext(): ClientProps {
+  const client = useContext(ClientContext);
+
+  if (client === undefined) {
+    throw new Error('useClientContext must be used within a ClientContext.Provider');
+  }
+
+  return client;
+}

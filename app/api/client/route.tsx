@@ -4,7 +4,16 @@ import prisma from '@/prisma/client'; // Adjust path as needed
 
 export async function GET() {
     try {
-        const clients = await prisma.client.findMany();
+        const clients = await prisma.client.findMany(
+            {
+                where: {
+                    deletedAt: null, // Include only clients where deleted_at is null
+                },
+                orderBy: {
+                    id: 'desc', // 'desc' for descending order
+                }
+            }
+        );
 
         return NextResponse.json(clients);
     } catch (error) {
@@ -20,7 +29,6 @@ export async function POST(request: NextRequest) {
         if (!validation.success) {
             return NextResponse.json(validation.error.errors, { status: 400 });
         }
-
         const newClient = await prisma.client.create({
             data: {
                 firstName: body.firstName,
@@ -30,21 +38,18 @@ export async function POST(request: NextRequest) {
                 gender: body.gender,
                 civilStatus: body.civilStatus,
                 clientNumber: body.clientNumber,
-                clientLandline: body.clientLandline,
                 spouseFirstName: body.spouseFirstName,
                 spouseMiddleName: body.spouseMiddleName,
                 spouseLastName: body.spouseLastName,
                 bday: body.bday ? new Date(body.bday) : null,
                 image: body.image,
+                client_id: body.client_id,
                 email: body.email,
             }
         });
 
-         // Convert BigInt to string
-       
-
         return NextResponse.json(newClient, { status: 201 });
     } catch (error) {
-        return NextResponse.json({ error: 'Error creating client' }, { status: 500 });
+        return NextResponse.json({ error: error }, { status: 500 });
     }
 }

@@ -3,7 +3,7 @@ export default middleware;
 
 export const config = {
     matcher: [
-        // '/api/user',
+        '/api/:path*',
         '/admin/:path*',
     ]
 }

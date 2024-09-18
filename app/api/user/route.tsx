@@ -5,8 +5,15 @@ import bcrypt from 'bcrypt';
 
 
 export async function GET() {
-   const users = await prisma.user.findMany();
-   return NextResponse.json(users);
+    const users = await prisma.user.findMany({
+        where: {
+            deletedAt: null, // Include only clients where deleted_at is null
+        },
+        orderBy: {
+            id: 'asc', // 'desc' for descending order
+        }
+    });
+    return NextResponse.json(users);
 }
 
 export async function POST(request: NextRequest) {
@@ -17,13 +24,13 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(validation.error.errors)
 
     const user = await prisma.user.findUnique({
-        where: {email: body.email}
+        where: { email: body.email }
     });
 
     const hashedPassword = await bcrypt.hash(body.password, 10);
 
-    if(user)
-        return NextResponse.json({error: 'user already exist'})
+    if (user)
+        return NextResponse.json({ error: 'user already exist' })
 
     const new_user = await prisma.user.create({
         data: {
@@ -34,5 +41,5 @@ export async function POST(request: NextRequest) {
     })
 
 
-    return NextResponse.json(new_user, {status: 201});
+    return NextResponse.json(new_user, { status: 201 });
 }
