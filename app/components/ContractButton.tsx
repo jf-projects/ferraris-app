@@ -73,7 +73,8 @@ const DocxDownloader: React.FC<DocxDownloaderProps> = ({ params }) => {
         const doc = new Docxtemplater(zip);
 
         // Set the template variables
-        const per_sqm = Math.round(params.propertyTotalAmount / params.sqm);
+        // const per_sqm = Math.round(params.propertyTotalAmount / params.sqm);
+        const per_sqm = params.sqm;
 
         doc.setData({
             client_name: `${params.client.firstName} ${params.client.lastName}`.toUpperCase(),
@@ -82,7 +83,7 @@ const DocxDownloader: React.FC<DocxDownloaderProps> = ({ params }) => {
             property_size_number: params.totalPropertySize,
             property_amount_total: convertNumberToWords(params.propertyTotalAmount),
             property_amount_number: params.propertyTotalAmount,
-            amount_increment: params.incrementAmount,
+            amount_increment: params.incrementValues.replace(/^\[|\]$/g, "").replace(/,/g, " / "),
             interest_word: convertNumberToWords(params.interest),
             amount_interest: params.interest,
             price_sqm: convertNumberToWords(per_sqm),

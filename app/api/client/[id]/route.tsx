@@ -35,31 +35,12 @@ export async function PUT(request: NextRequest,
     if (!client)
         return NextResponse.json({ error: 'client not found' }, {status: 400})
 
-    // const updated_client = await prisma.client.update({
-    //     where: { id: client.id },
-    //     data: {
-    //         firstName: body.firstName,
-    //         middleName: body.middleName,
-    //         lastName: body.lastName,
-    //         address: body.address,
-    //         gender: body.gender,
-    //         civilStatus: body.civilStatus,
-    //         clientNumber: body.clientNumber,
-    //         spouseFirstName: body.spouseFirstName,
-    //         spouseMiddleName: body.spouseMiddleName,
-    //         spouseLastName: body.spouseLastName,
-    //         bday: body.bday ? new Date(body.bday) : null,
-    //         image: body.image,
-    //         client_id: body.client_id,
-    //         email: body.email,
-    //     }
-    // })
 
     const updated_client = await prisma.client.update({
         where: { id: client.id },
         data: {
             ...body,
-            bday: body.bday && new Date(body.bday),
+            bday: body.bday ? new Date(body.bday) : null, // Correct conditional handling
         },
     });
 
@@ -71,7 +52,7 @@ export async function PUT(request: NextRequest,
         model_id: client.id
     });
 
-    return NextResponse.json(updated_client, {status: 200})
+    return NextResponse.json(updated_client, { status: 200 })
 }
 
 
