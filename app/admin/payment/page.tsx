@@ -32,7 +32,11 @@ const PaymentPage = () => {
             }) => ({
                 ...row,
                 formatted_amount: new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(Number(row.amount)),
-                property: row.transaction.propertyUnit,
+                property: row.transaction?.propertyUnit || "N/A",
+                unitLot: row.transaction?.unitLot || "N/A",
+                unitBlock: row.transaction?.unitBlock || "N/A",
+                propertyUnitAddress: row.transaction?.propertyUnitAddress || "N/A",
+                client: `${row.transaction?.client?.firstName} ${row.transaction?.client?.lastName}`  || "N/A",
             }));
 
             const reorderedPayments = transformedRows.map((item: {
@@ -96,8 +100,11 @@ const PaymentPage = () => {
 
     const columns = [
         { field: 'id', headerName: 'ID', width: 50 },
-        { field: 'property', headerName: 'Property', width: 250 },
-        { field: 'amount', headerName: 'Amount', width: 200, editable: false },
+        { field: 'unitLot', headerName: 'Lot', width: 80, editable: false },
+        { field: 'unitBlock', headerName: 'Block', width: 80, editable: false },
+        { field: 'propertyUnitAddress', headerName: 'Unit Address', width: 200, editable: false },
+        { field: 'client', headerName: 'Client', width: 200, editable: false },
+        { field: 'amount', headerName: 'Amount', width: 100, editable: false },
         { field: 'bank', headerName: 'Remarks', width: 300, editable: false },
         { field: 'paymentDate', headerName: 'Date', width: 150, editable: false },
         {
@@ -162,7 +169,7 @@ const PaymentPage = () => {
                             headers={["ID", "Property", "Amount", "Remarks", "Date"]}
                             headerStyles={{ fillColor: "green" }}
                             title="Payment List"
-                            fileName={"Payments-"+getFormattedDate()}
+                            fileName={"Payments-" + getFormattedDate()}
                         >
                             {(props) => (
                                 <button {...props} className='btn btn-xs btn-outline'>

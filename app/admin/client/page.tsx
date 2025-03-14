@@ -147,7 +147,9 @@ const ClientPage = () => {
 
   const columns = [
     { field: 'id', headerName: 'ID', width: 50 },
-    { field: 'fullName', headerName: 'Full Name', width: 150 },
+    { field: 'lastName', headerName: 'Last Name', width: 150 },
+    { field: 'firstName', headerName: 'First Name', width: 150 },
+    // { field: 'fullName', headerName: 'Full Name', width: 150 },
     { field: 'address', headerName: 'Address', width: 150, editable: false },
     { field: 'email', headerName: 'Email', width: 150, editable: false },
     {
@@ -247,7 +249,7 @@ const ClientPage = () => {
               headers={["ID", "Full Name", "Gender", "Email", "Number", "Address"]}
               headerStyles={{ fillColor: "red" }}
               title="Client List"
-              fileName="test"
+              fileName="Client_List"
             >
               {(props) => (
                 <button {...props} className='btn btn-xs btn-outline'>

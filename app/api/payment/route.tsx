@@ -13,7 +13,11 @@ export async function GET() {
                     id: 'desc', // 'desc' for descending order
                 },
                 include: {
-                    transaction: true,
+                    transaction: {
+                        include: {
+                            client: true, // Include client details from the transaction
+                        }
+                    }
                 },
             }
         );

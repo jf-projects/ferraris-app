@@ -223,7 +223,7 @@ const TransactionForm: React.FC<ClientFormProps> = ({ setSelectedClient, transac
                     router.push('/admin/lot-transactions');
                 }, 1000);
             } else {
-                toast.error(message);
+                toast.error('Error Adding/Updating Lot Transaction');
                 console.error('Error submitting form:', response.statusText);
             }
         } catch (error) {
@@ -466,7 +466,7 @@ const TransactionForm: React.FC<ClientFormProps> = ({ setSelectedClient, transac
                             className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
                             value={form.downpayment || ''}
                             onChange={handleChange}
-                            required
+                            
                         />
                     </div>
 
