@@ -2,7 +2,7 @@
 
 import BreakDown from '@/app/components/BreakDown';
 import PaymentForm from '@/app/components/PaymentForm';
-import TransactionForm from '@/app/components/TransactionForm';
+import MultiplePaymentForm from '@/app/components/MultiplePaymentForm';
 import DashboardLayout from '@/app/dashboard/layout';
 import React, { useState } from 'react'
 import { ToastContainer } from 'react-toastify';
@@ -14,17 +14,38 @@ interface Props {
     },
 }
 
-const PaymentPage = ({searchParams: {transactionId} }: Props) => {
+const PaymentPage = ({ searchParams: { transactionId } }: Props) => {
+    const [isMultiple, setMultiple] = useState<boolean>(false);
+
     return (
         <DashboardLayout>
             <div className="flex flex-col md:flex-row space-x-0 md:space-x-4 mb-12">
                 <div className="w-full md:w-full lg:w-1/2 mt-4 md:mt-0 border border-gray-300 p-4 rounded-md">
                     <h2 className="text-2xl font-bold mb-6 uppercase ">Payment Details</h2>
-                    <PaymentForm paymentId={null} transactionId={transactionId} />
+                    <div className="form-control">
+                        <label className="label cursor-pointer justify-start space-x-3">
+                            <span className="label-text text-lg font-bold">Multiple Payments</span>
+                            <input type="checkbox" className="toggle"
+                                checked={isMultiple}
+                                onChange={(e) => setMultiple(e.target.checked)}
+                            />
+                        </label>
+                    </div>
+
+
+
+                    {isMultiple ? (
+                        <>
+                            <p>This form allows you to create multiple payments.</p>
+                            <MultiplePaymentForm paymentId={null} transactionId={transactionId}></MultiplePaymentForm>
+                            </>
+                    ) : (
+                        <PaymentForm paymentId={null} transactionId={transactionId} />
+                    )}
                 </div>
                 <div className="w-full md:w-full lg:w-1/2 mt-4 md:mt-0 border border-gray-300 p-4 rounded-md">
                     <h2 className="text-2xl font-bold mb-6 uppercase ">Payment Breakdown</h2>
-                    <BreakDown transactionId={transactionId} paymentId={null}/>
+                    <BreakDown transactionId={transactionId} paymentId={null} />
                 </div>
             </div>
             <ToastContainer />

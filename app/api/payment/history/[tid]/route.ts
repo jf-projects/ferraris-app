@@ -9,7 +9,7 @@ type Monthly = {
     total_amount_due: number;
     month_interest: number;
     unpaid_months: number;
-    months: number;
+    months: number | string;
     balance: number;
     date: string;
     color: string;
@@ -39,6 +39,36 @@ export async function GET(request: NextRequest, { params }: { params: { tid: str
         start_date.setDate(1)
     }
     let date_now = new Date();
+
+    const lastPayment = await prisma.payment.findFirst({
+        where: {
+            deletedAt: null,
+            lotTransactionId: parseInt(params.tid),
+        },
+        orderBy: {
+            paymentDate: 'desc',
+        },
+        include: {
+            transaction: {
+                include: {
+                    client: true,
+                },
+            },
+        },
+    });
+
+    let laterDate: Date;
+    if (lastPayment?.paymentDate) {
+        laterDate =
+            date_now > lastPayment.paymentDate
+                ? date_now
+                : lastPayment.paymentDate;
+
+        laterDate.setMonth(laterDate.getMonth() + 1);
+    } else {
+        laterDate = date_now;
+    }
+
 
     let interest_start_date = transaction?.interestDate || null;
     if (interest_start_date) {
@@ -72,8 +102,8 @@ export async function GET(request: NextRequest, { params }: { params: { tid: str
     arr_obj.push(newObj);
 
     if (start_date) {
-        while ((start_date <= date_now) && number_months <= terms) {
-            
+        while ((start_date <= laterDate) && number_months <= terms) {
+
             let index = Math.floor(number_months / 60.1);
             let year = start_date.getFullYear();
             let month = start_date.getMonth() + 1;
@@ -100,8 +130,8 @@ export async function GET(request: NextRequest, { params }: { params: { tid: str
 
             // add interest
             if ((unpaid_months >= 3 && interest_start_date == null) || (unpaid_months >= 3 && interest_start_date && interest_start_date <= start_date)) {
-                const isSameMonthAndYear = (start_date.getMonth() === date_now.getMonth()) &&
-                    (start_date.getFullYear() === date_now.getFullYear());
+                const isSameMonthAndYear = (start_date.getMonth() === laterDate.getMonth()) &&
+                    (start_date.getFullYear() === laterDate.getFullYear());
                 if (!isSameMonthAndYear) {
                     month_interest = Math.round((compounding_dues * (interest / 100)) * 100) / 100;
                 }
@@ -109,24 +139,42 @@ export async function GET(request: NextRequest, { params }: { params: { tid: str
             }
             month_balance = compounding_dues - amount_paid_current_month;
 
-            const newObj: Monthly = {
-                months: number_months,
-                date: monthNames[month - 1] + ' ' + year,
-                base_amount_due: monthly_dues[index],
-                month_interest: month_interest,
-                total_amount_due: compounding_dues,
-                amount_paid: amount_paid_current_month,
-                year: year,
-                month: month,
-                unpaid_months: unpaid_months,
-                color: cell_color,
-                balance: month_balance
-            };
+            if (start_date <= date_now) {
+                const newObj: Monthly = {
+                    months: number_months,
+                    date: monthNames[month - 1] + ' ' + year,
+                    base_amount_due: monthly_dues[index],
+                    month_interest: month_interest,
+                    total_amount_due: compounding_dues,
+                    amount_paid: amount_paid_current_month,
+                    year: year,
+                    month: month,
+                    unpaid_months: unpaid_months,
+                    color: cell_color,
+                    balance: month_balance
+                };
+                arr_obj.push(newObj);
+            } else if (start_date > date_now && amount_paid_current_month > 0) {
+                const newObj: Monthly = {
+                    months: "-",
+                    date: monthNames[paymentFound[0].paymentDate!.getMonth()] + ' ' + paymentFound[0].paymentDate!.getFullYear(),
+                    base_amount_due: monthly_dues[index],
+                    month_interest: 0,
+                    total_amount_due: 0,
+                    amount_paid: amount_paid_current_month,
+                    year: paymentFound[0].paymentDate!.getFullYear(),
+                    month: paymentFound[0].paymentDate!.getMonth(),
+                    unpaid_months: 0,
+                    color: 'bg-purple-100',
+                    balance: 0
+                };
+                arr_obj.push(newObj);
 
-            arr_obj.push(newObj);
+            }
 
-            if(number_months == 300){
-                console.log(number_months, start_date, date_now,start_date <= date_now,newObj,index,monthly_dues)
+
+            if (number_months == 300) {
+                console.log(number_months, start_date, laterDate, start_date <= laterDate, newObj, index, monthly_dues)
             }
 
             start_date.setMonth(start_date.getMonth() + 1);
